@@ -402,11 +402,15 @@
             try {
               data.portions[i] = null;
               await saveData(data);
+              // Reload page after successful removal
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
             } catch (error) {
               alert('Failed to remove assignment. Please try again.');
               data.portions[i] = portion; // Revert
+              showLoading(false);
             }
-            showLoading(false);
           };
           btn.appendChild(removeIcon);
           if (portion.done) {
@@ -558,12 +562,17 @@
 
         await saveData(data);
         selectedPortions = [];
-        messageEl.textContent = 'Portion(s) claimed successfully!';
+        messageEl.textContent = 'Portion(s) claimed successfully! Refreshing page...';
         messageEl.style.color = '#4bbf73';
 
         // Clear form
         document.getElementById('participant-name').value = '';
         document.getElementById('completion-date').value = '';
+        
+        // Reload page after successful claim
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
 
       } catch (error) {
         messageEl.textContent = 'Failed to claim portions. Please try again.';
