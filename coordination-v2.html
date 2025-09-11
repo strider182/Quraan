@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quran Reading Coordination - Modern</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --primary-light: #d1fae5;
+      --secondary: #6366f1;
+      --secondary-light: #e0e7ff;
+      --accent: #f59e0b;
+      --accent-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --white: #ffffff;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --border-radius: 12px;
+      --border-radius-lg: 16px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, var(--gray-50) 0%, var(--primary-light) 100%);
+      color: var(--gray-800);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 1.125rem;
+      color: var(--gray-600);
+      font-weight: 400;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--gray-100);
+      backdrop-filter: blur(10px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--gray-100);
+    }
+
+    .card-header i {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .card-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 500;
+      color: var(--gray-700);
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      background: var(--white);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary {
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border: 1px solid var(--gray-200);
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-200);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+      color: var(--white);
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
+      color: var(--white);
+      font-size: 1rem;
+      padding: 1rem 2rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-accent:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .portions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+    }
+
+    .portion-btn {
+      position: relative;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .portion-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .portion-btn.selected {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-color: var(--primary-dark);
+      color: var(--white);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .portion-btn.claimed {
+      background: linear-gradient(135deg, var(--secondary) 0%, #4f46e5 100%);
+      border-color: var(--secondary);
+      color: var(--white);
+    }
+
+    .portion-btn.done {
+      background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
+      border-color: var(--accent);
+      color: var(--white);
+    }
+
+    .portion-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--gray-100);
+    }
+
+    .portion-btn .icon {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--gray-700);
+      transition: all 0.2s ease;
+    }
+
+    .portion-btn .icon:hover {
+      transform: scale(1.1);
+    }
+
+    .portion-btn .icon.confirm {
+      color: var(--primary);
+    }
+
+    .portion-btn .icon.remove {
+      color: var(--danger);
+    }
+
+    .progress-section {
+      margin-bottom: 2rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: var(--gray-200);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 6px;
+      transition: width 0.5s ease;
+      position: relative;
+    }
+
+    .progress::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      text-align: center;
+      border: 1px solid var(--gray-100);
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .overview-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--border-radius);
+      padding: 1rem;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .overview-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .overview-card.claimed {
+      border-color: var(--secondary);
+      background: linear-gradient(135deg, var(--secondary-light) 0%, var(--white) 100%);
+    }
+
+    .overview-card.done {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--accent-light) 0%, var(--white) 100%);
+    }
+
+    .overview-card h4 {
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+    }
+
+    .overview-card .reader-info {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin-bottom: 0.25rem;
+    }
+
+    .overview-card .actions {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      display: flex;
+      gap: 0.25rem;
+      margin: 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      background: var(--white);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .table th,
+    .table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table th {
+      background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+      font-weight: 600;
+      color: var(--gray-700);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .table tr:hover {
+      background: var(--gray-50);
+    }
+
+    .loading-indicator {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+
+    .loading-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid var(--white);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .message {
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+
+    .message.success {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border: 1px solid var(--primary);
+    }
+
+    .message.error {
+      background: var(--danger-light);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .completion-banner {
+      background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
+      color: var(--white);
+      padding: 1.5rem;
+      border-radius: var(--border-radius-lg);
+      text-align: center;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .completion-banner h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+      }
+
+      .portions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        gap: 0.5rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      .overview-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-book-quran"></i> Quran Reading Coordination</h1>
+      <p>Coordinate your Quran reading journey with your study group</p>
+    </div>
+
+    <div class="card" id="claim-section">
+      <div class="card-header">
+        <i class="fas fa-user-plus"></i>
+        <h2>Claim Your Quran Reading Portions (Juz/Para)</h2>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="participant-name">
+          <i class="fas fa-user"></i> Your Name
+        </label>
+        <input type="text" id="participant-name" class="form-input" placeholder="Enter your full name">
+      </div>
+
+      <div class="actions">
+        <button id="select-all" class="btn btn-secondary">
+          <i class="fas fa-check-double"></i> Select All Available
+        </button>
+        <button id="clear-all" class="btn btn-danger">
+          <i class="fas fa-times"></i> Clear All
+        </button>
+      </div>
+
+      <div class="portions-grid" id="portion-select-grid"></div>
+
+      <div class="form-group">
+        <label class="form-label" for="completion-date">
+          <i class="fas fa-calendar"></i> Completion Date
+        </label>
+        <input type="date" id="completion-date" class="form-input">
+      </div>
+
+      <button id="claim-btn" class="btn btn-accent">
+        <i class="fas fa-hand-paper"></i> Claim Portion(s)
+      </button>
+
+      <div id="claim-message"></div>
+    </div>
+
+    <div class="card" id="overview-section">
+      <div class="card-header">
+        <i class="fas fa-chart-line"></i>
+        <h2>Project Progress</h2>
+      </div>
+      
+      <div class="progress-section">
+        <div class="progress-bar">
+          <div class="progress" id="progress-bar"></div>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-number" id="assigned-count">0</span>
+            <span class="stat-label">Portions Assigned</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="available-count">30</span>
+            <span class="stat-label">Available Portions</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="active-readers">0</span>
+            <span class="stat-label">Active Readers</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="est-completion">-</span>
+            <span class="stat-label">Est. Completion</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-header">
+        <i class="fas fa-th-large"></i>
+        <h2>Reading Portions Overview</h2>
+      </div>
+      <div class="overview-grid" id="portion-overview-grid"></div>
+    </div>
+
+    <div class="card" id="summary-section">
+      <div class="card-header">
+        <i class="fas fa-users"></i>
+        <h2>Reader Assignments</h2>
+      </div>
+      <table class="table" id="reader-summary-table">
+        <thead>
+          <tr>
+            <th><i class="fas fa-user"></i> Reader</th>
+            <th><i class="fas fa-list"></i> Portions</th>
+            <th><i class="fas fa-calendar-check"></i> Latest Completion</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="card-header" style="margin-top: 2rem;">
+        <i class="fas fa-timeline"></i>
+        <h2>Completion Timeline</h2>
+      </div>
+      <table class="table" id="timeline-table">
+        <thead>
+          <tr>
+            <th><i class="fas fa-calendar"></i> Date</th>
+            <th><i class="fas fa-book"></i> Portions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>    // ---
+ Firebase Configuration ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmhnpfN8fDIo-w2Cux9Z24UM6Pef3DTrE",
+      authDomain: "collaboration-6c1f9.firebaseapp.com",
+      projectId: "collaboration-6c1f9",
+      storageBucket: "collaboration-6c1f9.firebasestorage.app",
+      messagingSenderId: "898101038569",
+      appId: "1:898101038569:web:f820b57e92a42ebf848f78"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const PROJECT_DOC = 'reading-coordination';
+
+    // --- Data Model ---
+    const PORTION_COUNT = 30;
+    let currentData = null;
+    let isLoading = false;
+
+    function getDefaultData() {
+      return {
+        portions: Array(PORTION_COUNT).fill(null),
+        readers: {},
+        lastUpdated: new Date().toISOString()
+      };
+    }
+
+    async function loadData() {
+      if (isLoading) return currentData || getDefaultData();
+      
+      isLoading = true;
+      try {
+        const doc = await db.collection('projects').doc(PROJECT_DOC).get();
+        if (doc.exists) {
+          currentData = doc.data();
+          if (!currentData.portions || !currentData.readers) {
+            currentData = getDefaultData();
+          }
+        } else {
+          currentData = getDefaultData();
+          await saveData(currentData);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+        try {
+          const localData = JSON.parse(localStorage.getItem('readingProjectData'));
+          currentData = localData && localData.portions ? localData : getDefaultData();
+        } catch (e) {
+          currentData = getDefaultData();
+        }
+      }
+      isLoading = false;
+      return currentData;
+    }
+
+    async function saveData(data) {
+      data.lastUpdated = new Date().toISOString();
+      currentData = data;
+      
+      try {
+        await db.collection('projects').doc(PROJECT_DOC).set(data);
+        localStorage.setItem('readingProjectData', JSON.stringify(data));
+      } catch (error) {
+        console.error('Error saving data:', error);
+        localStorage.setItem('readingProjectData', JSON.stringify(data));
+        throw error;
+      }
+    }
+
+    function setupRealtimeListener() {
+      db.collection('projects').doc(PROJECT_DOC).onSnapshot((doc) => {
+        if (doc.exists && !isLoading) {
+          const newData = doc.data();
+          if (newData.lastUpdated !== currentData?.lastUpdated) {
+            currentData = newData;
+            renderAll();
+          }
+        }
+      }, (error) => {
+        console.error('Error in realtime listener:', error);
+      });
+    }
+
+    // --- UI State ---
+    let selectedPortions = [];
+    
+    function showLoading(show = true) {
+      const existingLoader = document.getElementById('loading-indicator');
+      if (show && !existingLoader) {
+        const loader = document.createElement('div');
+        loader.id = 'loading-indicator';
+        loader.className = 'loading-indicator';
+        loader.innerHTML = '<div class="loading-spinner"></div> Syncing...';
+        document.body.appendChild(loader);
+      } else if (!show && existingLoader) {
+        existingLoader.remove();
+      }
+    }
+
+    function renderPortionSelectGrid(data) {
+      const grid = document.getElementById('portion-select-grid');
+      grid.innerHTML = '';
+      for (let i = 0; i < PORTION_COUNT; i++) {
+        const portion = data.portions[i];
+        const btn = document.createElement('div');
+        btn.className = 'portion-btn' + 
+          (selectedPortions.includes(i) ? ' selected' : '') + 
+          (portion ? ' disabled' : '');
+        btn.textContent = i + 1;
+        btn.onclick = () => {
+          if (portion) return;
+          if (selectedPortions.includes(i)) {
+            selectedPortions = selectedPortions.filter(p => p !== i);
+          } else {
+            selectedPortions.push(i);
+          }
+          renderPortionSelectGrid(data);
+        };
+        if (portion) {
+          btn.title = `Claimed by ${portion.reader}`;
+        }
+        grid.appendChild(btn);
+      }
+    }
+
+    function renderPortionOverviewGrid(data) {
+      const grid = document.getElementById('portion-overview-grid');
+      grid.innerHTML = '';
+      for (let i = 0; i < PORTION_COUNT; i++) {
+        const portion = data.portions[i];
+        const card = document.createElement('div');
+        card.className = 'overview-card' + (portion ? (portion.done ? ' done' : ' claimed') : '');
+        
+        const title = document.createElement('h4');
+        title.textContent = `Portion ${i + 1}`;
+        card.appendChild(title);
+
+        if (portion) {
+          const readerInfo = document.createElement('div');
+          readerInfo.className = 'reader-info';
+          readerInfo.innerHTML = `<i class="fas fa-user"></i> ${portion.reader}`;
+          card.appendChild(readerInfo);
+
+          const dateInfo = document.createElement('div');
+          dateInfo.className = 'reader-info';
+          dateInfo.innerHTML = `<i class="fas fa-calendar"></i> Due: ${portion.date || '-'}`;
+          card.appendChild(dateInfo);
+
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+
+          const confirmBtn = document.createElement('button');
+          confirmBtn.className = 'btn btn-secondary';
+          confirmBtn.innerHTML = portion.done ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-check"></i>';
+          confirmBtn.title = portion.done ? 'Mark as incomplete' : 'Mark as done';
+          confirmBtn.onclick = async (e) => {
+            e.stopPropagation();
+            showLoading();
+            try {
+              portion.done = !portion.done;
+              await saveData(data);
+            } catch (error) {
+              alert('Failed to update. Please try again.');
+              portion.done = !portion.done;
+            }
+            showLoading(false);
+          };
+          actions.appendChild(confirmBtn);
+
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'btn btn-danger';
+          removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
+          removeBtn.title = 'Remove assignment';
+          removeBtn.onclick = async (e) => {
+            e.stopPropagation();
+            if (!confirm('Remove this assignment?')) return;
+            showLoading();
+            try {
+              data.portions[i] = null;
+              await saveData(data);
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            } catch (error) {
+              alert('Failed to remove assignment. Please try again.');
+              data.portions[i] = portion;
+              showLoading(false);
+            }
+          };
+          actions.appendChild(removeBtn);
+
+          card.appendChild(actions);
+        } else {
+          const availableInfo = document.createElement('div');
+          availableInfo.className = 'reader-info';
+          availableInfo.innerHTML = '<i class="fas fa-circle-check"></i> Available';
+          card.appendChild(availableInfo);
+        }
+
+        grid.appendChild(card);
+      }
+    }
+
+    function renderProgress(data) {
+      const assigned = data.portions.filter(p => p).length;
+      const available = PORTION_COUNT - assigned;
+      const readers = Object.keys(data.readers).length;
+      
+      document.getElementById('assigned-count').textContent = assigned;
+      document.getElementById('available-count').textContent = available;
+      document.getElementById('active-readers').textContent = readers;
+
+      let estDate = '-';
+      if (assigned === PORTION_COUNT) {
+        estDate = data.portions.reduce((max, p) => p && p.date && p.date > max ? p.date : max, '');
+        
+        let banner = document.getElementById('completion-banner');
+        if (!banner) {
+          banner = document.createElement('div');
+          banner.id = 'completion-banner';
+          banner.className = 'completion-banner';
+          document.querySelector('.container').insertBefore(banner, document.querySelector('.card'));
+        }
+        banner.innerHTML = `
+          <h3><i class="fas fa-trophy"></i> All Portions Assigned!</h3>
+          <p>Estimated completion date: ${estDate}</p>
+        `;
+      } else {
+        const banner = document.getElementById('completion-banner');
+        if (banner) banner.remove();
+      }
+      
+      document.getElementById('est-completion').textContent = estDate;
+      document.getElementById('progress-bar').style.width = (assigned / PORTION_COUNT * 100) + '%';
+    }
+
+    function renderReaderSummary(data) {
+      const tbody = document.getElementById('reader-summary-table').querySelector('tbody');
+      tbody.innerHTML = '';
+      const readers = {};
+      data.portions.forEach((p, idx) => {
+        if (p) {
+          if (!readers[p.reader]) readers[p.reader] = [];
+          readers[p.reader].push({portion: idx+1, date: p.date, done: p.done});
+        }
+      });
+      Object.entries(readers).forEach(([reader, portions]) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><i class="fas fa-user"></i> ${reader}</td>
+          <td>${portions.map(p => `<span class="badge">${p.portion}</span>`).join(' ')}</td>
+          <td>${portions.reduce((max, p) => p.date && p.date > max ? p.date : max, '')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTimeline(data) {
+      const tbody = document.getElementById('timeline-table').querySelector('tbody');
+      tbody.innerHTML = '';
+      const byDate = {};
+      data.portions.forEach((p, idx) => {
+        if (p && p.date) {
+          if (!byDate[p.date]) byDate[p.date] = [];
+          byDate[p.date].push(`${idx+1}(${p.reader})`);
+        }
+      });
+      Object.entries(byDate).sort().forEach(([date, portions]) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><i class="fas fa-calendar"></i> ${date}</td>
+          <td>${portions.join(', ')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function renderAll() {
+      const data = await loadData();
+      renderPortionSelectGrid(data);
+      renderPortionOverviewGrid(data);
+      renderProgress(data);
+      renderReaderSummary(data);
+      renderTimeline(data);
+    }
+
+    // --- Event Handlers ---
+    document.getElementById('select-all').onclick = async () => {
+      const data = await loadData();
+      selectedPortions = [];
+      for (let i = 0; i < PORTION_COUNT; i++) {
+        if (!data.portions[i]) selectedPortions.push(i);
+      }
+      renderPortionSelectGrid(data);
+    };
+    
+    document.getElementById('clear-all').onclick = async () => {
+      selectedPortions = [];
+      const data = await loadData();
+      renderPortionSelectGrid(data);
+    };
+    
+    document.getElementById('claim-btn').onclick = async () => {
+      const name = document.getElementById('participant-name').value.trim();
+      const date = document.getElementById('completion-date').value;
+      const messageEl = document.getElementById('claim-message');
+      
+      if (!name) {
+        messageEl.innerHTML = '<div class="message error"><i class="fas fa-exclamation-triangle"></i> Please enter your name.</div>';
+        return;
+      }
+      if (!date) {
+        messageEl.innerHTML = '<div class="message error"><i class="fas fa-exclamation-triangle"></i> Please enter a completion date.</div>';
+        return;
+      }
+      if (selectedPortions.length === 0) {
+        messageEl.innerHTML = '<div class="message error"><i class="fas fa-exclamation-triangle"></i> Please select at least one portion.</div>';
+        return;
+      }
+
+      showLoading();
+      try {
+        const data = await loadData();
+        
+        const conflictPortions = selectedPortions.filter(idx => data.portions[idx]);
+        if (conflictPortions.length > 0) {
+          messageEl.innerHTML = `<div class="message error"><i class="fas fa-exclamation-triangle"></i> Portions ${conflictPortions.map(i => i+1).join(', ')} were just claimed by someone else. Please refresh and try again.</div>`;
+          showLoading(false);
+          return;
+        }
+
+        selectedPortions.forEach(idx => {
+          data.portions[idx] = {reader: name, date: date, done: false};
+        });
+        
+        if (!data.readers[name]) data.readers[name] = {portions: [], dates: []};
+        data.readers[name].portions = data.portions
+          .map((p, i) => p && p.reader === name ? i+1 : null)
+          .filter(x => x);
+        data.readers[name].dates = data.portions
+          .map((p, i) => p && p.reader === name ? p.date : null)
+          .filter(x => x);
+        
+        await saveData(data);
+        selectedPortions = [];
+        messageEl.innerHTML = '<div class="message success"><i class="fas fa-check-circle"></i> Portion(s) claimed successfully! Refreshing page...</div>';
+        
+        document.getElementById('participant-name').value = '';
+        document.getElementById('completion-date').value = '';
+        
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+        
+      } catch (error) {
+        messageEl.innerHTML = '<div class="message error"><i class="fas fa-exclamation-triangle"></i> Failed to claim portions. Please try again.</div>';
+      }
+      showLoading(false);
+    };
+
+    // --- Initial Setup ---
+    document.addEventListener('DOMContentLoaded', async () => {
+      showLoading();
+      try {
+        await renderAll();
+        setupRealtimeListener();
+      } catch (error) {
+        console.error('Failed to load initial data:', error);
+        alert('Failed to connect to database. Using offline mode.');
+      }
+      showLoading(false);
+    });
+  </script>
+</body>
+</html>
