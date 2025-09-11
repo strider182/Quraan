@@ -1,6 +1,6 @@
-# Reading Coordination Project
+# Quran Reading Coordination Project
 
-A real-time web application for coordinating reading assignments among multiple participants using Firebase Firestore.
+A real-time web application for coordinating Quran reading assignments among multiple participants using Firebase Firestore.
 
 ## Features
 
@@ -18,8 +18,8 @@ A real-time web application for coordinating reading assignments among multiple 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/reading-coordination.git
-   cd reading-coordination
+   git clone https://github.com/strider182/Quraan.git
+   cd Quraan
    ```
 
 2. **Set up Firebase** (see [Firebase Setup Guide](firebase-setup.md))
@@ -34,15 +34,19 @@ A real-time web application for coordinating reading assignments among multiple 
 
 ## How It Works
 
-1. **Claim portions**: Enter your name, select a completion date, choose reading portions, and claim them
+1. **Claim portions**: Enter your name, select a completion date, choose Quran reading portions (1-30), and claim them
 2. **Real-time updates**: See other participants' claims instantly
 3. **Track progress**: Mark portions as complete and view overall progress
 4. **Coordinate deadlines**: See completion timeline and estimated project finish date
 
+## Live Demo
+
+🌐 **[Try it live here](https://strider182.github.io/Quraan/coordination.html)**
+
 ## Project Structure
 
 ```
-reading-coordination/
+Quraan/
 ├── coordination.html      # Main application file
 ├── firebase-setup.md     # Firebase configuration guide
 ├── README.md            # This file
@@ -58,7 +62,7 @@ The app uses Firebase Firestore for real-time data synchronization. See [firebas
 - **Collection**: `projects`
 - **Document**: `reading-coordination`
 - **Fields**:
-  - `portions`: Array of 30 reading portions
+  - `portions`: Array of 30 Quran portions (Juz/Para)
   - `readers`: Object mapping reader names to assignments
   - `lastUpdated`: Timestamp for conflict detection
 
@@ -91,4 +95,13 @@ If you encounter issues:
 
 ---
 
-**Made for reading groups who want to coordinate their progress in real-time!**
+**Made for Quran study groups who want to coordinate their reading progress in real-time!**
+
+## About
+
+This project helps coordinate Quran reading among groups, allowing participants to:
+- Claim specific portions (Juz/Para 1-30)
+- Set completion deadlines
+- Track collective progress
+- Avoid duplicate assignments
+- See real-time updates from other participants
