@@ -10,9 +10,9 @@ A real-time web application for coordinating Quran reading assignments among mul
 - **Offline fallback**: Works offline using localStorage as backup
 - **Mobile responsive**: Works on desktop and mobile devices
 
-## Demo
+## Live Demo
 
-![Reading Coordination Interface](https://via.placeholder.com/800x400/4bbf73/ffffff?text=Reading+Coordination+Project)
+🌐 **[Try it live here](https://strider182.github.io/Quraan/coordination.html)**
 
 ## Quick Start
 
@@ -38,10 +38,6 @@ A real-time web application for coordinating Quran reading assignments among mul
 2. **Real-time updates**: See other participants' claims instantly
 3. **Track progress**: Mark portions as complete and view overall progress
 4. **Coordinate deadlines**: See completion timeline and estimated project finish date
-
-## Live Demo
-
-🌐 **[Try it live here](https://strider182.github.io/Quraan/coordination.html)**
 
 ## Project Structure
 
