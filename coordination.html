@@ -319,6 +319,49 @@
     // --- UI State ---
     let selectedPortions = [];
 
+    // Robust reload function for mobile compatibility
+    function forceReload(delay = 1000) {
+      setTimeout(() => {
+        // For mobile browsers, try multiple approaches
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+          // Mobile-specific reload approach
+          try {
+            // Method 1: Create a temporary form and submit it (works well on mobile)
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = window.location.href;
+            document.body.appendChild(form);
+            form.submit();
+            return;
+          } catch (formError) {
+            // Continue to other methods if form submission fails
+          }
+        }
+        
+        // Standard reload methods
+        try {
+          window.location.reload(true);
+        } catch (e1) {
+          try {
+            window.location.reload();
+          } catch (e2) {
+            try {
+              window.location.replace(window.location.href);
+            } catch (e3) {
+              try {
+                window.location.assign(window.location.href);
+              } catch (e4) {
+                // Last resort - direct href assignment
+                window.location.href = window.location.href + '?t=' + Date.now();
+              }
+            }
+          }
+        }
+      }, delay);
+    }
+
     function showLoading(show = true) {
       const existingLoader = document.getElementById('loading-indicator');
       if (show && !existingLoader) {
@@ -384,13 +427,7 @@
               portion.done = !portion.done;
               await saveData(data);
               // Force reload for both desktop and mobile browsers
-              setTimeout(() => {
-                if (window.location.reload) {
-                  window.location.reload(true); // Force reload from server
-                } else {
-                  window.location.href = window.location.href; // Fallback method
-                }
-              }, 1000);
+              forceReload(1000);
             } catch (error) {
               alert('Failed to update. Please try again.');
               portion.done = !portion.done; // Revert
@@ -411,13 +448,7 @@
               data.portions[i] = null;
               await saveData(data);
               // Force reload for both desktop and mobile browsers
-              setTimeout(() => {
-                if (window.location.reload) {
-                  window.location.reload(true); // Force reload from server
-                } else {
-                  window.location.href = window.location.href; // Fallback method
-                }
-              }, 1000);
+              forceReload(1000);
             } catch (error) {
               alert('Failed to remove assignment. Please try again.');
               data.portions[i] = portion; // Revert
@@ -428,7 +459,7 @@
           if (!portion.done) {
             btn.appendChild(removeIcon);
           }
-          
+
           if (portion.done) {
             btn.classList.add('done');
             // Lock completed portions - disable interactions
@@ -589,16 +620,9 @@
         // Clear form
         document.getElementById('participant-name').value = '';
         document.getElementById('completion-date').value = '';
-        
+
         // Force reload for both desktop and mobile browsers
-        setTimeout(() => {
-          // Multiple reload methods for better mobile compatibility
-          if (window.location.reload) {
-            window.location.reload(true); // Force reload from server
-          } else {
-            window.location.href = window.location.href; // Fallback method
-          }
-        }, 1500);
+        forceReload(1500);
 
       } catch (error) {
         messageEl.textContent = 'Failed to claim portions. Please try again.';
