@@ -50,18 +50,12 @@
       background: #eaf0fa;
       border: 2px solid #cfd8e3;
       border-radius: 6px;
-      padding: 8px;
+      padding: 12px 0;
       text-align: center;
       font-size: 1em;
       cursor: pointer;
       transition: background 0.2s, border 0.2s;
       position: relative;
-      min-height: 80px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
     }
 
     .portion-btn.selected {
@@ -194,30 +188,30 @@
       </div>
     </div>
 
-    <div class="section" id="claim-section"></div>
-    <h2>Claim Your Quran Reading Portions (Juz/Para)</h2>
-    <label for="participant-name">Your Name</label><br>
-    <input type="text" id="participant-name" placeholder="Enter your full name"
-      style="width:100%;margin-bottom:12px;padding:8px;">
-    <div class="actions">
-      <button id="select-all">Select All Available</button>
-      <button id="clear-all" class="clear">Clear All</button>
-    </div>
+    <div class="section" id="claim-section">
+      <h2>Claim Your Quran Reading Portions (Juz/Para)</h2>
+      <label for="participant-name">Your Name</label><br>
+      <input type="text" id="participant-name" placeholder="Enter your full name"
+        style="width:100%;margin-bottom:12px;padding:8px;">
+      <div class="actions">
+        <button id="select-all">Select All Available</button>
+        <button id="clear-all" class="clear">Clear All</button>
+      </div>
 
-    <!-- Selection Summary -->
-    <div id="selection-summary"
-      style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center; color: #64748b; font-weight: 500;">
-      No portions selected
-    </div>
+      <!-- Selection Summary -->
+      <div id="selection-summary"
+        style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center; color: #64748b; font-weight: 500;">
+        No portions selected
+      </div>
 
-    <div class="portions-grid" id="portion-select-grid"></div>
-    <label for="completion-date">Completion Date</label><br>
-    <input type="date" id="completion-date" style="width:100%;margin-bottom:12px;padding:8px;">
-    <button id="claim-btn"
-      style="background:#ffc66c;color:#222;padding:10px 24px;border-radius:6px;border:none;font-size:1.1em;">Claim
-      Portion(s)</button>
-    <div id="claim-message" style="margin-top:10px;color:#4bbf73;font-weight:500;"></div>
-  </div>
+      <div class="portions-grid" id="portion-select-grid"></div>
+      <label for="completion-date">Completion Date</label><br>
+      <input type="date" id="completion-date" style="width:100%;margin-bottom:12px;padding:8px;">
+      <button id="claim-btn"
+        style="background:#ffc66c;color:#222;padding:10px 24px;border-radius:6px;border:none;font-size:1.1em;">Claim
+        Portion(s)</button>
+      <div id="claim-message" style="margin-top:10px;color:#4bbf73;font-weight:500;"></div>
+    </div>
   <div class="section" id="overview-section">
     <h2>Project Progress</h2>
 
@@ -235,8 +229,12 @@
       <div class="progress" id="progress-bar"></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:24px;">
-<div style="display:flex;flex-wrap:wrap;gap:24px;">
-    </div>
+      <div>
+        <div><b id="assigned-count">0</b> Portions Assigned</div>
+        <div><b id="available-count">30</b> Available Portions</div>
+        <div><b id="active-readers">0</b> Active Readers</div>
+        <div>Est. Completion: <b id="est-completion">-</b></div>
+      </div>
     </div>
     <h3 style="margin-top:24px;">Reading Portions Overview</h3>
     <div class="portions-grid" id="portion-overview-grid"></div>
@@ -247,7 +245,6 @@
       
       <h2>Completion Timeline</h2>
       <div id="timeline-cards"></div>
-  </div>
   </div>
   <script>
     // --- Firebase Configuration ---
@@ -529,17 +526,15 @@
         const portion = data.portions[i];
         const btn = document.createElement('div');
         btn.className = 'portion-btn' + (portion ? ' selected' : '');
+        btn.innerHTML = `<div>${i + 1}</div>`;
         if (portion) {
-          btn.innerHTML = `
-            <div style="font-weight: bold; font-size: 1.1em;">${i + 1}</div>
-            <div style="font-size: 0.7em; margin-top: 2px; line-height: 1.2; text-align: center;">${portion.reader}</div>
-            <div style="font-size: 0.6em; margin-top: 1px; opacity: 0.8;">${portion.date}</div>
-          `;
-        } else {
-          btn.innerHTML = `<div style="font-weight: bold; font-size: 1.1em;">${i + 1}</div>`;
-        }
-        
-        if (portion) {
+          // Show name and date
+          const info = document.createElement('div');
+          info.style.fontSize = '0.8em';
+          info.style.marginTop = '2px';
+          info.style.color = '#222';
+          info.textContent = `${portion.reader} (${portion.date})`;
+          btn.appendChild(info);
           // Confirm icon
           const confirmIcon = document.createElement('span');
           confirmIcon.className = 'icon confirm';
