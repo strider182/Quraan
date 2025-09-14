@@ -50,12 +50,18 @@
       background: #eaf0fa;
       border: 2px solid #cfd8e3;
       border-radius: 6px;
-      padding: 12px 0;
+      padding: 8px;
       text-align: center;
       font-size: 1em;
       cursor: pointer;
       transition: background 0.2s, border 0.2s;
       position: relative;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
     }
 
     .portion-btn.selected {
@@ -164,10 +170,7 @@
         grid-template-columns: repeat(3, 1fr);
       }
 
-      /* Make summary section single column on mobile */
-      #summary-section>div[style*="grid-template-columns"] {
-        grid-template-columns: 1fr !important;
-      }
+
     }
   </style>
 </head>
@@ -239,33 +242,11 @@
     <div class="portions-grid" id="portion-overview-grid"></div>
   </div>
   <div class="section" id="summary-section">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
-
-      <!-- Reader Assignments Card -->
-      <div
-        style="background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden;">
-        <div
-          style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; padding: 20px; text-align: center;">
-          <h2 style="margin: 0; font-size: 1.3rem; font-weight: 600;">Reader Assignments</h2>
-        </div>
-        <div style="padding: 20px;">
-          <div id="reader-assignments-cards"></div>
-        </div>
-      </div>
-
-      <!-- Completion Timeline Card -->
-      <div
-        style="background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden;">
-        <div
-          style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; padding: 20px; text-align: center;">
-          <h2 style="margin: 0; font-size: 1.3rem; font-weight: 600;">Completion Timeline</h2>
-        </div>
-        <div style="padding: 20px;">
-          <div id="timeline-cards"></div>
-        </div>
-      </div>
-
-    </div>
+      <h2>Reader Assignments</h2>
+      <div id="reader-assignments-cards"></div>
+      
+      <h2>Completion Timeline</h2>
+      <div id="timeline-cards"></div>
   </div>
   </div>
   <script>
@@ -548,15 +529,17 @@
         const portion = data.portions[i];
         const btn = document.createElement('div');
         btn.className = 'portion-btn' + (portion ? ' selected' : '');
-        btn.innerHTML = `<div>${i + 1}</div>`;
         if (portion) {
-          // Show name and date
-          const info = document.createElement('div');
-          info.style.fontSize = '0.8em';
-          info.style.marginTop = '2px';
-          info.style.color = '#222';
-          info.textContent = `${portion.reader} (${portion.date})`;
-          btn.appendChild(info);
+          btn.innerHTML = `
+            <div style="font-weight: bold; font-size: 1.1em;">${i + 1}</div>
+            <div style="font-size: 0.7em; margin-top: 2px; line-height: 1.2; text-align: center;">${portion.reader}</div>
+            <div style="font-size: 0.6em; margin-top: 1px; opacity: 0.8;">${portion.date}</div>
+          `;
+        } else {
+          btn.innerHTML = `<div style="font-weight: bold; font-size: 1.1em;">${i + 1}</div>`;
+        }
+        
+        if (portion) {
           // Confirm icon
           const confirmIcon = document.createElement('span');
           confirmIcon.className = 'icon confirm';
