@@ -383,11 +383,19 @@
             try {
               portion.done = !portion.done;
               await saveData(data);
+              // Force reload for both desktop and mobile browsers
+              setTimeout(() => {
+                if (window.location.reload) {
+                  window.location.reload(true); // Force reload from server
+                } else {
+                  window.location.href = window.location.href; // Fallback method
+                }
+              }, 1000);
             } catch (error) {
               alert('Failed to update. Please try again.');
               portion.done = !portion.done; // Revert
+              showLoading(false);
             }
-            showLoading(false);
           };
           btn.appendChild(confirmIcon);
           // Trash bin icon
@@ -402,9 +410,13 @@
             try {
               data.portions[i] = null;
               await saveData(data);
-              // Reload page after successful removal
+              // Force reload for both desktop and mobile browsers
               setTimeout(() => {
-                window.location.reload();
+                if (window.location.reload) {
+                  window.location.reload(true); // Force reload from server
+                } else {
+                  window.location.href = window.location.href; // Fallback method
+                }
               }, 1000);
             } catch (error) {
               alert('Failed to remove assignment. Please try again.');
@@ -412,11 +424,20 @@
               showLoading(false);
             }
           };
-          btn.appendChild(removeIcon);
+          // Only show remove icon if portion is not completed
+          if (!portion.done) {
+            btn.appendChild(removeIcon);
+          }
+          
           if (portion.done) {
             btn.classList.add('done');
+            // Lock completed portions - disable interactions
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.8';
+            btn.title = `${portion.reader} - COMPLETED (${portion.date || '-'}) - Locked`;
+          } else {
+            btn.title = `${portion.reader} (Due: ${portion.date || '-'})`;
           }
-          btn.title = `${portion.reader} (Due: ${portion.date || '-'})`;
         } else {
           btn.title = 'Available';
         }
@@ -569,9 +590,14 @@
         document.getElementById('participant-name').value = '';
         document.getElementById('completion-date').value = '';
         
-        // Reload page after successful claim
+        // Force reload for both desktop and mobile browsers
         setTimeout(() => {
-          window.location.reload();
+          // Multiple reload methods for better mobile compatibility
+          if (window.location.reload) {
+            window.location.reload(true); // Force reload from server
+          } else {
+            window.location.href = window.location.href; // Fallback method
+          }
         }, 1500);
 
       } catch (error) {
