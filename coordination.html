@@ -163,6 +163,11 @@
       .portions-grid {
         grid-template-columns: repeat(3, 1fr);
       }
+
+      /* Make summary section single column on mobile */
+      #summary-section>div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+      }
     }
   </style>
 </head>
@@ -170,76 +175,98 @@
 <body>
   <div class="container">
     <h1>Quran Reading Coordination</h1>
-    
+
     <!-- Brief Introduction Message -->
-    <div class="section" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-left: 4px solid #0ea5e9; margin-bottom: 24px;">
+    <div class="section"
+      style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-left: 4px solid #0ea5e9; margin-bottom: 24px;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <div style="font-size: 2rem;">📖</div>
         <div>
           <h3 style="margin: 0; color: #0c4a6e; font-size: 1.2rem;">Welcome to Quran Reading Coordination</h3>
           <p style="margin: 4px 0 0 0; color: #075985; font-size: 0.95rem;">
-            Coordinate your Quran reading journey with your study group. Select portions, track progress, and complete together.
+            Coordinate your Quran reading journey with your study group. Select portions, track progress, and complete
+            together.
           </p>
         </div>
       </div>
     </div>
 
-    <div class="section" id="claim-section">
-      <h2>Claim Your Quran Reading Portions (Juz/Para)</h2>
-      <label for="participant-name">Your Name</label><br>
-      <input type="text" id="participant-name" placeholder="Enter your full name"
-        style="width:100%;margin-bottom:12px;padding:8px;">
-      <div class="actions">
-        <button id="select-all">Select All Available</button>
-        <button id="clear-all" class="clear">Clear All</button>
-      </div>
-      <div class="portions-grid" id="portion-select-grid"></div>
-      <label for="completion-date">Completion Date</label><br>
-      <input type="date" id="completion-date" style="width:100%;margin-bottom:12px;padding:8px;">
-      <button id="claim-btn"
-        style="background:#ffc66c;color:#222;padding:10px 24px;border-radius:6px;border:none;font-size:1.1em;">Claim
-        Portion(s)</button>
-      <div id="claim-message" style="margin-top:10px;color:#4bbf73;font-weight:500;"></div>
+    <div class="section" id="claim-section"></div>
+    <h2>Claim Your Quran Reading Portions (Juz/Para)</h2>
+    <label for="participant-name">Your Name</label><br>
+    <input type="text" id="participant-name" placeholder="Enter your full name"
+      style="width:100%;margin-bottom:12px;padding:8px;">
+    <div class="actions">
+      <button id="select-all">Select All Available</button>
+      <button id="clear-all" class="clear">Clear All</button>
     </div>
-    <div class="section" id="overview-section">
-      <h2>Project Progress</h2>
-      <div class="progress-bar">
-        <div class="progress" id="progress-bar"></div>
+
+    <!-- Selection Summary -->
+    <div id="selection-summary"
+      style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center; color: #64748b; font-weight: 500;">
+      No portions selected
+    </div>
+
+    <div class="portions-grid" id="portion-select-grid"></div>
+    <label for="completion-date">Completion Date</label><br>
+    <input type="date" id="completion-date" style="width:100%;margin-bottom:12px;padding:8px;">
+    <button id="claim-btn"
+      style="background:#ffc66c;color:#222;padding:10px 24px;border-radius:6px;border:none;font-size:1.1em;">Claim
+      Portion(s)</button>
+    <div id="claim-message" style="margin-top:10px;color:#4bbf73;font-weight:500;"></div>
+  </div>
+  <div class="section" id="overview-section">
+    <h2>Project Progress</h2>
+
+    <!-- Claiming Progress Summary -->
+    <div id="claiming-summary"
+      style="background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: none;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <div style="font-size: 1.5rem;">✨</div>
+        <h3 style="margin: 0; color: #065f46; font-size: 1.1rem;">Claiming Progress</h3>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:24px;">
-        <div>
-          <div><b id="assigned-count">0</b> Portions Assigned</div>
-          <div><b id="available-count">30</b> Available Portions</div>
-          <div><b id="active-readers">0</b> Active Readers</div>
-          <div>Est. Completion: <b id="est-completion">-</b></div>
+      <div id="claiming-details" style="color: #047857; font-size: 0.95rem;"></div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress" id="progress-bar"></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+<div style="display:flex;flex-wrap:wrap;gap:24px;">
+    </div>
+    </div>
+    <h3 style="margin-top:24px;">Reading Portions Overview</h3>
+    <div class="portions-grid" id="portion-overview-grid"></div>
+  </div>
+  <div class="section" id="summary-section">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+
+      <!-- Reader Assignments Card -->
+      <div
+        style="background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden;">
+        <div
+          style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; padding: 20px; text-align: center;">
+          <h2 style="margin: 0; font-size: 1.3rem; font-weight: 600;">Reader Assignments</h2>
+        </div>
+        <div style="padding: 20px;">
+          <div id="reader-assignments-cards"></div>
         </div>
       </div>
-      <h3 style="margin-top:24px;">Reading Portions Overview</h3>
-      <div class="portions-grid" id="portion-overview-grid"></div>
+
+      <!-- Completion Timeline Card -->
+      <div
+        style="background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden;">
+        <div
+          style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; padding: 20px; text-align: center;">
+          <h2 style="margin: 0; font-size: 1.3rem; font-weight: 600;">Completion Timeline</h2>
+        </div>
+        <div style="padding: 20px;">
+          <div id="timeline-cards"></div>
+        </div>
+      </div>
+
     </div>
-    <div class="section" id="summary-section">
-      <h2>Reader Assignments</h2>
-      <table class="summary-table" id="reader-summary-table">
-        <thead>
-          <tr>
-            <th>Reader</th>
-            <th>Portions</th>
-            <th>Latest Completion</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <h2>Completion Timeline</h2>
-      <table class="timeline-table" id="timeline-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Portions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+  </div>
   </div>
   <script>
     // --- Firebase Configuration ---
@@ -343,7 +370,7 @@
     let selectedPortions = [];
     let clickCounts = {}; // Track clicks on locked portions for secret unlock
     let userColors = {}; // Track colors assigned to users
-    
+
     // Available colors for users (excluding green which is for completed)
     const availableColors = [
       '#3b82f6', // Blue
@@ -363,7 +390,7 @@
       '#0891b2', // Cyan-600
       '#ca8a04', // Yellow-600
     ];
-    
+
     function getUserColor(userName) {
       if (!userColors[userName]) {
         // Find next available color
@@ -379,7 +406,7 @@
       setTimeout(() => {
         // For mobile browsers, try multiple approaches
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
+
         if (isMobile) {
           // Mobile-specific reload approach
           try {
@@ -394,7 +421,7 @@
             // Continue to other methods if form submission fails
           }
         }
-        
+
         // Standard reload methods
         try {
           window.location.reload(true);
@@ -446,12 +473,35 @@
             selectedPortions.push(i);
           }
           renderPortionSelectGrid(data);
+          updateSelectionSummary(); // Update selection summary
         };
         if (portion) {
           btn.style.opacity = 0.5;
           btn.title = `Claimed by ${portion.reader}`;
         }
         grid.appendChild(btn);
+      }
+      updateSelectionSummary(); // Update selection summary
+    }
+
+    function updateSelectionSummary() {
+      const summaryEl = document.getElementById('selection-summary');
+      if (selectedPortions.length === 0) {
+        summaryEl.innerHTML = 'No portions selected';
+        summaryEl.style.background = '#f8fafc';
+        summaryEl.style.borderColor = '#cbd5e1';
+        summaryEl.style.color = '#64748b';
+      } else {
+        const sortedPortions = [...selectedPortions].sort((a, b) => a - b).map(i => i + 1);
+        summaryEl.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span style="font-size: 1.2rem;">📋</span>
+            <span><strong>${selectedPortions.length}</strong> portion${selectedPortions.length > 1 ? 's' : ''} selected: ${sortedPortions.join(', ')}</span>
+          </div>
+        `;
+        summaryEl.style.background = 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)';
+        summaryEl.style.borderColor = '#10b981';
+        summaryEl.style.color = '#065f46';
       }
     }
     function renderPortionOverviewGrid(data) {
@@ -522,14 +572,14 @@
             btn.style.borderColor = '#059669';
             btn.style.color = '#fff';
             btn.title = `${portion.reader} - COMPLETED (${portion.date || '-'}) - Click 5 times to unlock`;
-            
+
             // Secret unlock: 5 clicks to unlock completed portion
             btn.style.cursor = 'pointer';
             btn.onclick = (e) => {
               e.stopPropagation();
               const portionKey = `portion-${i}`;
               clickCounts[portionKey] = (clickCounts[portionKey] || 0) + 1;
-              
+
               if (clickCounts[portionKey] >= 5) {
                 if (confirm(`Unlock completed portion ${i + 1}? This will mark it as incomplete.`)) {
                   portion.done = false;
@@ -564,41 +614,70 @@
     }
     function renderProgress(data) {
       const assigned = data.portions.filter(p => p).length;
+      const completed = data.portions.filter(p => p && p.done).length;
       const available = PORTION_COUNT - assigned;
       const readers = Object.keys(data.readers).length;
+
       document.getElementById('assigned-count').textContent = assigned;
       document.getElementById('available-count').textContent = available;
       document.getElementById('active-readers').textContent = readers;
+
+      // Update claiming summary
+      const claimingSummary = document.getElementById('claiming-summary');
+      const claimingDetails = document.getElementById('claiming-details');
+
+      if (assigned > 0) {
+        claimingSummary.style.display = 'block';
+        claimingDetails.innerHTML = `
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">
+            <div>
+              <div style="font-size: 1.5rem; font-weight: 600; color: #059669;">${assigned}</div>
+              <div style="font-size: 0.85rem;">Claimed</div>
+            </div>
+            <div>
+              <div style="font-size: 1.5rem; font-weight: 600; color: #10b981;">${completed}</div>
+              <div style="font-size: 0.85rem;">Completed</div>
+            </div>
+            <div>
+              <div style="font-size: 1.5rem; font-weight: 600; color: #6b7280;">${available}</div>
+              <div style="font-size: 0.85rem;">Available</div>
+            </div>
+          </div>
+        `;
+      } else {
+        claimingSummary.style.display = 'none';
+      }
+
       // Completion date
       let estDate = '-';
       if (assigned === PORTION_COUNT) {
-        // Find latest date
         estDate = data.portions.reduce((max, p) => p && p.date && p.date > max ? p.date : max, '');
-        // Show at top of page
         let topDate = document.getElementById('top-completion-date');
         if (!topDate) {
           topDate = document.createElement('div');
           topDate.id = 'top-completion-date';
-          topDate.style.background = '#eaf0fa';
-          topDate.style.padding = '12px';
-          topDate.style.borderRadius = '8px';
+          topDate.style.background = 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+          topDate.style.padding = '16px';
+          topDate.style.borderRadius = '12px';
           topDate.style.fontWeight = 'bold';
           topDate.style.fontSize = '1.2em';
           topDate.style.marginBottom = '16px';
+          topDate.style.textAlign = 'center';
+          topDate.style.color = '#92400e';
+          topDate.style.border = '2px solid #f59e0b';
           document.querySelector('.container').insertBefore(topDate, document.querySelector('.container').firstChild.nextSibling);
         }
-        topDate.textContent = `Overall Completion Date: ${estDate}`;
+        topDate.innerHTML = `🎉 <strong>All Portions Assigned!</strong> Overall Completion Date: ${estDate}`;
       } else {
         const topDate = document.getElementById('top-completion-date');
         if (topDate) topDate.remove();
       }
       document.getElementById('est-completion').textContent = estDate;
-      // Progress bar
       document.getElementById('progress-bar').style.width = (assigned / PORTION_COUNT * 100) + '%';
     }
     function renderReaderSummary(data) {
-      const tbody = document.getElementById('reader-summary-table').querySelector('tbody');
-      tbody.innerHTML = '';
+      const container = document.getElementById('reader-assignments-cards');
+      container.innerHTML = '';
       const readers = {};
       data.portions.forEach((p, idx) => {
         if (p) {
@@ -606,27 +685,84 @@
           readers[p.reader].push({ portion: idx + 1, date: p.date, done: p.done });
         }
       });
+
+      if (Object.keys(readers).length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 20px;">No assignments yet</div>';
+        return;
+      }
+
       Object.entries(readers).forEach(([reader, portions]) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${reader}</td><td>${portions.map(p => p.portion).join(', ')}</td><td>${portions.reduce((max, p) => p.date && p.date > max ? p.date : max, '')}</td>`;
-        tbody.appendChild(tr);
+        const userColor = getUserColor(reader);
+        const latestDate = portions.reduce((max, p) => p.date && p.date > max ? p.date : max, '');
+        const completedCount = portions.filter(p => p.done).length;
+
+        const card = document.createElement('div');
+        card.style.cssText = `
+          background: #f8fafc; 
+          border-radius: 8px; 
+          padding: 16px; 
+          margin-bottom: 12px; 
+          border-left: 4px solid ${userColor};
+        `;
+
+        card.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <div style="background: ${userColor}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+              ${reader}
+            </div>
+          </div>
+          <div style="font-size: 0.9rem; color: #374151; margin-bottom: 4px;">
+            <strong>Portions:</strong> ${portions.map(p => p.portion).join(', ')}
+          </div>
+          <div style="font-size: 0.85rem; color: #6b7280;">
+            Latest completion: ${latestDate || 'Not set'} • ${completedCount}/${portions.length} completed
+          </div>
+        `;
+
+        container.appendChild(card);
       });
     }
     function renderTimeline(data) {
-      const tbody = document.getElementById('timeline-table').querySelector('tbody');
-      tbody.innerHTML = '';
-      // Group by date
+      const container = document.getElementById('timeline-cards');
+      container.innerHTML = '';
       const byDate = {};
       data.portions.forEach((p, idx) => {
         if (p && p.date) {
           if (!byDate[p.date]) byDate[p.date] = [];
-          byDate[p.date].push(`${idx + 1}(${p.reader})`);
+          byDate[p.date].push({ portion: idx + 1, reader: p.reader });
         }
       });
+
+      if (Object.keys(byDate).length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 20px;">No deadlines set</div>';
+        return;
+      }
+
       Object.entries(byDate).sort().forEach(([date, portions]) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${date}</td><td>${portions.join(', ')}</td>`;
-        tbody.appendChild(tr);
+        const card = document.createElement('div');
+        card.style.cssText = `
+          background: #f8fafc; 
+          border-radius: 8px; 
+          padding: 16px; 
+          margin-bottom: 12px; 
+          border-left: 4px solid #4f46e5;
+        `;
+
+        card.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <div style="background: #4f46e5; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+              ${date}
+            </div>
+          </div>
+          <div style="font-size: 0.9rem; color: #374151;">
+            <strong>${portions.length}</strong> portion${portions.length > 1 ? 's' : ''}
+          </div>
+          <div style="font-size: 0.85rem; color: #6b7280; margin-top: 4px;">
+            ${portions.map(p => `${p.portion}(${p.reader})`).join(', ')}
+          </div>
+        `;
+
+        container.appendChild(card);
       });
     }
     async function renderAll() {
@@ -689,7 +825,7 @@
 
         // Assign color to user if they don't have one
         getUserColor(name);
-        
+
         selectedPortions.forEach(idx => {
           data.portions[idx] = { reader: name, date: date, done: false };
         });
