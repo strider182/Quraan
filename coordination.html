@@ -280,9 +280,28 @@
       appId: "1:898101038569:web:f820b57e92a42ebf848f78"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    // Initialize Firebase with error handling
+    let db;
+    try {
+      console.log('Initializing Firebase...');
+      firebase.initializeApp(firebaseConfig);
+      console.log('Firebase app initialized');
+      
+      db = firebase.firestore();
+      console.log('Firestore initialized');
+      
+      // Test connection
+      db.enableNetwork().then(() => {
+        console.log('Firestore network enabled');
+      }).catch((error) => {
+        console.warn('Firestore network error:', error);
+      });
+      
+    } catch (error) {
+      console.error('Firebase initialization failed:', error);
+      alert('Firebase initialization failed: ' + error.message);
+    }
+    
     const PROJECT_DOC = 'reading-coordination';
 
     // --- Data Model ---
@@ -304,9 +323,18 @@
 
       isLoading = true;
       try {
+        console.log('Attempting to load data from Firestore...');
+        
+        if (!db) {
+          throw new Error('Firestore not initialized');
+        }
+        
         const doc = await db.collection('projects').doc(PROJECT_DOC).get();
+        console.log('Firestore document retrieved:', doc.exists);
+        
         if (doc.exists) {
           currentData = doc.data();
+          console.log('Data loaded from Firestore:', currentData);
           if (!currentData.portions || !currentData.readers) {
             currentData = getDefaultData();
           }
@@ -315,11 +343,12 @@
             userColors = currentData.userColors;
           }
         } else {
+          console.log('No existing document, creating default data');
           currentData = getDefaultData();
           await saveData(currentData);
         }
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error('Error loading data from Firestore:', error.message);
         // Fallback to localStorage
         try {
           const localData = JSON.parse(localStorage.getItem('readingProjectData'));
@@ -341,11 +370,17 @@
       currentData = data;
 
       try {
-        await db.collection('projects').doc(PROJECT_DOC).set(data);
+        if (db) {
+          console.log('Saving data to Firestore...');
+          await db.collection('projects').doc(PROJECT_DOC).set(data);
+          console.log('Data saved to Firestore successfully');
+        } else {
+          console.warn('Firestore not available, saving to localStorage only');
+        }
         // Also save to localStorage as backup
         localStorage.setItem('readingProjectData', JSON.stringify(data));
       } catch (error) {
-        console.error('Error saving data:', error);
+        console.error('Error saving data to Firestore:', error);
         // Fallback to localStorage only
         localStorage.setItem('readingProjectData', JSON.stringify(data));
         throw error;
@@ -486,6 +521,8 @@
 
     function updateSelectionSummary() {
       const summaryEl = document.getElementById('selection-summary');
+      if (!summaryEl) return; // Exit if element doesn't exist
+      
       if (selectedPortions.length === 0) {
         summaryEl.innerHTML = 'No portions selected';
         summaryEl.style.background = '#f8fafc';
@@ -618,34 +655,40 @@
       const available = PORTION_COUNT - assigned;
       const readers = Object.keys(data.readers).length;
 
-      document.getElementById('assigned-count').textContent = assigned;
-      document.getElementById('available-count').textContent = available;
-      document.getElementById('active-readers').textContent = readers;
+      const assignedEl = document.getElementById('assigned-count');
+      const availableEl = document.getElementById('available-count');
+      const readersEl = document.getElementById('active-readers');
+      
+      if (assignedEl) assignedEl.textContent = assigned;
+      if (availableEl) availableEl.textContent = available;
+      if (readersEl) readersEl.textContent = readers;
 
       // Update claiming summary
       const claimingSummary = document.getElementById('claiming-summary');
       const claimingDetails = document.getElementById('claiming-details');
 
-      if (assigned > 0) {
-        claimingSummary.style.display = 'block';
-        claimingDetails.innerHTML = `
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">
-            <div>
-              <div style="font-size: 1.5rem; font-weight: 600; color: #059669;">${assigned}</div>
-              <div style="font-size: 0.85rem;">Claimed</div>
+      if (claimingSummary && claimingDetails) {
+        if (assigned > 0) {
+          claimingSummary.style.display = 'block';
+          claimingDetails.innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">
+              <div>
+                <div style="font-size: 1.5rem; font-weight: 600; color: #059669;">${assigned}</div>
+                <div style="font-size: 0.85rem;">Claimed</div>
+              </div>
+              <div>
+                <div style="font-size: 1.5rem; font-weight: 600; color: #10b981;">${completed}</div>
+                <div style="font-size: 0.85rem;">Completed</div>
+              </div>
+              <div>
+                <div style="font-size: 1.5rem; font-weight: 600; color: #6b7280;">${available}</div>
+                <div style="font-size: 0.85rem;">Available</div>
+              </div>
             </div>
-            <div>
-              <div style="font-size: 1.5rem; font-weight: 600; color: #10b981;">${completed}</div>
-              <div style="font-size: 0.85rem;">Completed</div>
-            </div>
-            <div>
-              <div style="font-size: 1.5rem; font-weight: 600; color: #6b7280;">${available}</div>
-              <div style="font-size: 0.85rem;">Available</div>
-            </div>
-          </div>
-        `;
-      } else {
-        claimingSummary.style.display = 'none';
+          `;
+        } else {
+          claimingSummary.style.display = 'none';
+        }
       }
 
       // Completion date
@@ -672,11 +715,16 @@
         const topDate = document.getElementById('top-completion-date');
         if (topDate) topDate.remove();
       }
-      document.getElementById('est-completion').textContent = estDate;
-      document.getElementById('progress-bar').style.width = (assigned / PORTION_COUNT * 100) + '%';
+      const estCompletionEl = document.getElementById('est-completion');
+      const progressBarEl = document.getElementById('progress-bar');
+      
+      if (estCompletionEl) estCompletionEl.textContent = estDate;
+      if (progressBarEl) progressBarEl.style.width = (assigned / PORTION_COUNT * 100) + '%';
     }
     function renderReaderSummary(data) {
       const container = document.getElementById('reader-assignments-cards');
+      if (!container) return; // Exit if element doesn't exist
+      
       container.innerHTML = '';
       const readers = {};
       data.portions.forEach((p, idx) => {
@@ -724,6 +772,8 @@
     }
     function renderTimeline(data) {
       const container = document.getElementById('timeline-cards');
+      if (!container) return; // Exit if element doesn't exist
+      
       container.innerHTML = '';
       const byDate = {};
       data.portions.forEach((p, idx) => {
@@ -859,12 +909,28 @@
     // --- Initial Setup ---
     document.addEventListener('DOMContentLoaded', async () => {
       showLoading();
+      
+      // Check if Firebase is available
+      if (typeof firebase === 'undefined') {
+        console.error('Firebase SDK not loaded');
+        alert('Firebase SDK failed to load. Please check your internet connection.');
+        showLoading(false);
+        return;
+      }
+      
       try {
+        console.log('Starting app initialization...');
         await renderAll();
-        setupRealtimeListener();
+        
+        if (db) {
+          setupRealtimeListener();
+          console.log('App initialized successfully with Firebase');
+        } else {
+          console.warn('Firebase not available, running in offline mode');
+        }
       } catch (error) {
         console.error('Failed to load initial data:', error);
-        alert('Failed to connect to database. Using offline mode.');
+        alert('Failed to connect to database. Using offline mode. Error: ' + error.message);
       }
       showLoading(false);
     });
