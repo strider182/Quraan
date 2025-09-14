@@ -163,6 +163,12 @@
       .portions-grid {
         grid-template-columns: repeat(3, 1fr);
       }
+      
+      /* Stack summary columns on mobile */
+      #summary-section > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
 
 
     }
@@ -240,11 +246,21 @@
     <div class="portions-grid" id="portion-overview-grid"></div>
   </div>
   <div class="section" id="summary-section">
-      <h2>Reader Assignments</h2>
-      <div id="reader-assignments-cards"></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
       
-      <h2>Completion Timeline</h2>
-      <div id="timeline-cards"></div>
+      <!-- Reader Assignments Column -->
+      <div>
+        <h2 style="text-align: center; color: #4f46e5; margin-bottom: 20px;">Reader Assignments</h2>
+        <div id="reader-assignments-cards"></div>
+      </div>
+      
+      <!-- Completion Timeline Column -->
+      <div>
+        <h2 style="text-align: center; color: #4f46e5; margin-bottom: 20px;">Completion Timeline</h2>
+        <div id="timeline-cards"></div>
+      </div>
+      
+    </div>
   </div>
   <script>
     // --- Firebase Configuration ---
