@@ -114,6 +114,39 @@
       color: #fff;
     }
 
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .color-option.selected {
+      border-color: #fff;
+      box-shadow: 0 0 0 2px #333, 0 4px 8px rgba(0,0,0,0.3);
+      transform: scale(1.1);
+    }
+
+    .color-option.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
     .summary-table,
     .timeline-table {
       width: 100%;
@@ -213,6 +246,18 @@
       <div class="portions-grid" id="portion-select-grid"></div>
       <label for="completion-date">Completion Date</label><br>
       <input type="date" id="completion-date" style="width:100%;margin-bottom:12px;padding:8px;">
+      
+      <label for="color-selector">Choose Your Color</label><br>
+      <div id="color-selector" style="display: flex; gap: 8px; margin: 8px 0 16px 0; flex-wrap: wrap;">
+        <div class="color-option" data-color="#3b82f6" style="background: #3b82f6;" title="Blue"></div>
+        <div class="color-option" data-color="#8b5cf6" style="background: #8b5cf6;" title="Purple"></div>
+        <div class="color-option" data-color="#f59e0b" style="background: #f59e0b;" title="Amber"></div>
+        <div class="color-option" data-color="#ef4444" style="background: #ef4444;" title="Red"></div>
+        <div class="color-option" data-color="#06b6d4" style="background: #06b6d4;" title="Cyan"></div>
+        <div class="color-option" data-color="#f97316" style="background: #f97316;" title="Orange"></div>
+        <div class="color-option" data-color="#ec4899" style="background: #ec4899;" title="Pink"></div>
+        <div class="color-option" data-color="#6366f1" style="background: #6366f1;" title="Indigo"></div>
+      </div>
       <button id="claim-btn"
         style="background:#ffc66c;color:#222;padding:10px 24px;border-radius:6px;border:none;font-size:1.1em;">Claim
         Portion(s)</button>
@@ -399,6 +444,7 @@
     let selectedPortions = [];
     let clickCounts = {}; // Track clicks on locked portions for secret unlock
     let userColors = {}; // Track colors assigned to users
+    let selectedColor = '#3b82f6'; // Default color (blue)
 
     // Available colors for users (excluding green which is for completed)
     const availableColors = [
@@ -817,6 +863,26 @@
       renderReaderSummary(data);
       renderTimeline(data);
     }
+    // Color selector functionality
+    function initializeColorSelector() {
+      const colorOptions = document.querySelectorAll('.color-option');
+      
+      // Set default selection
+      if (colorOptions.length > 0) {
+        colorOptions[0].classList.add('selected');
+      }
+      
+      colorOptions.forEach(option => {
+        option.onclick = () => {
+          // Remove previous selection
+          colorOptions.forEach(opt => opt.classList.remove('selected'));
+          // Add selection to clicked option
+          option.classList.add('selected');
+          selectedColor = option.dataset.color;
+        };
+      });
+    }
+
     // --- Event Handlers ---
     document.getElementById('select-all').onclick = async () => {
       const data = await loadData();
@@ -867,8 +933,8 @@
           return;
         }
 
-        // Assign color to user if they don't have one
-        getUserColor(name);
+        // Assign selected color to user
+        userColors[name] = selectedColor;
 
         selectedPortions.forEach(idx => {
           data.portions[idx] = { reader: name, date: date, done: false };
@@ -915,6 +981,7 @@
       try {
         console.log('Starting app initialization...');
         await renderAll();
+        initializeColorSelector();
         
         if (db) {
           setupRealtimeListener();
